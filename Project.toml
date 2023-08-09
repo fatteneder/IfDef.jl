@@ -1,0 +1,7 @@
+name = "IfDef"
+uuid = "f4b91f2b-c123-4332-a045-73ce07d2d92e"
+authors = ["flo "]
+version = "0.1.0"
+
+[deps]
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"

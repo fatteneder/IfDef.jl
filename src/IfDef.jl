@@ -62,7 +62,7 @@ function find_in_if(ifex::Expr, sym)
 
     branches = []
 
-    # if block
+    # 1st if block
     @assert ifex.head === :if
     if ifex.args[1] === sym
         push!(branches, ifex.args[2])
@@ -75,6 +75,7 @@ function find_in_if(ifex::Expr, sym)
     elif_branches = ifex.args[3].args
     # elseif blocks
     if ifex.args[3].head === :elseif
+
         for (i,b) in enumerate(elif_branches[1:2:end-1])
             cond = b.args[2] # 1. is LineNumberNode
             if !(cond isa Symbol)
@@ -84,17 +85,23 @@ function find_in_if(ifex::Expr, sym)
                 push!(branches, elif_branches[2*i])
             end
         end
+
+        N_elif = length(elif_branches)
+        has_else = isodd(N_elif)
+        if has_else && length(branches) == 0 # only add else if no other branch matched
+            push!(branches, elif_branches[end])
+        end
+
+    else # it was just a if-else
+        if length(branches) == 0 # only add else if no other branch matched
+            push!(branches, ifex.args[3])
+        end
     end
 
-    # else
-    N_elif_branches = length(elif_branches)
-    has_else = isodd(div(N_elif_branches,2)) #|| length(elif_branches) == 0
+    # if there was not else branch and none of the elseifs matched, then we haven't found anything
+    # in that case return the first if branch
     if length(branches) == 0
-        if has_else
-            push!(branches, elif_branches[end])
-        else
-            push!(branches, ifex.args[2])
-        end
+        push!(branches, ifex.args[2])
     end
 
     return branches

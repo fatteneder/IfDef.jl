@@ -29,6 +29,18 @@ using IfDef
     @test eval(IfDef.filter_ifdef(ex, :case2))  == 3
     @test eval(IfDef.filter_ifdef(ex, nothing)) == 4
 
+    ex = quote
+        @ifdef if case1
+            y = 1
+        elseif case2
+            y = 2
+        end
+        y += 1
+    end
+    @test eval(IfDef.filter_ifdef(ex, :case1))  == 2
+    @test eval(IfDef.filter_ifdef(ex, :case2))  == 3
+    @test eval(IfDef.filter_ifdef(ex, nothing)) == 2
+
     @test include(ifdef"case1", "mwe.jl") == 2
     @test include(ifdef"case2", "mwe.jl") == 3
     # case3 not defined -- fall back to either else branch or first branch
